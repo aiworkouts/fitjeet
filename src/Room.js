@@ -43,22 +43,59 @@ const Room = ({ roomName, token, handleLogout }) => {
   ));
 
   return (
-    <div className="room">
-      <h2>Room: {roomName}</h2>
-      <button onClick={handleLogout}>Log out</button>
-      <div className="local-participant">
-        {room ? (
-          <Participant
-            key={room.localParticipant.sid}
-            participant={room.localParticipant}
-          />
-        ) : (
-          ''
-        )}
-      </div>
-      <h3>Remote Participants</h3>
-      <div className="remote-participants">{remoteParticipants}</div>
+    <div className="vbox viewport outermost">
+      <header>Room: {roomName}</header>
+      <section className="main hbox space-between">
+        <nav><button onClick={handleLogout}>Log out</button></nav>
+        <article>
+          <div><video height="520px" autoPlay muted loop src="assets/LowImpactCardio.mp4" /></div>
+        </article>
+        <aside>
+          <div className="mainCamera">
+            <div>
+              {room ? (
+                <Participant
+                  key={room.localParticipant.sid}
+                  participant={room.localParticipant}
+                />
+              ) : (
+                  ''
+                )}
+            </div>
+            <div>
+              {room ? (
+                <Participant
+                  key={room.localParticipant.sid}
+                  participant={room.localParticipant}
+                />
+              ) : (
+                  ''
+                )}
+            </div>
+          </div>
+        </aside>
+      </section>
+      <footer>
+      {remoteParticipants}
+        {/* <video width="350px" autoPlay muted loop src="assets/LowImpactCardio.mp4" /> */}
+      </footer>
     </div>
+    // <div className="room">
+    //   <h2>Room: {roomName}</h2>
+    //   <button onClick={handleLogout}>Log out</button>
+    //   <div className="local-participant">
+    // {room ? (
+    //   <Participant
+    //     key={room.localParticipant.sid}
+    //     participant={room.localParticipant}
+    //   />
+    // ) : (
+    //   ''
+    // )}
+    //   </div>
+    //   <h3>Remote Participants</h3>
+    //   <div className="remote-participants">{remoteParticipants}</div>
+    // </div>
   );
 };
 

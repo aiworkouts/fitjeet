@@ -14,7 +14,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "node-env-run server --exec nodemon | pino-colada",
-    "dev": "node src/prepare.js && run-p server start"
+    "download": "node src/prepare.js",
+    "dev": "run-p server start"
   },
   "proxy": "http://localhost:3001",
   "eslintConfig": {
