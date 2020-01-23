@@ -26,6 +26,9 @@ const VideoChat = () => {
     async event => {
       event.preventDefault();
       console.log(`code`, codename)
+      console.log(`token`, token)
+      console.log(`role`, role)
+      console.log(`----`)
       const data = await fetch('/video/token', {
         method: 'POST',
         body: JSON.stringify({
@@ -37,8 +40,11 @@ const VideoChat = () => {
           'Content-Type': 'application/json'
         }
       }).then(res => res.json());
+
       setToken(data.token);
       setRole(data.role);
+      console.log(`token`, token)
+      console.log(`role`, role)
       if(data.error !== undefined)
         setError(data.error)
       else
