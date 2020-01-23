@@ -9,6 +9,7 @@ const App = () => {
         <h1>Video Chat with Hooks</h1>
       </header>
       <main>
+        <video autoPlay muted loop><source src="assets/LowImpactCardio.mp4"></source></video>
         <VideoChat />
       </main>
       <footer>
