@@ -41,13 +41,15 @@ app.get('/api/greeting', (req, res) => {
 });
 
 app.post('/video/token', (req, res) => {
-  const identity = req.body.identity;
+  let identity = req.body.identity;
   const room = req.body.room;
   const code = req.body.code;
   if(room !== 'workout101') {
     sendClassNotFound(res)
     return
   }
+  if(code === 'secret2020')
+    identity += '-instructor'
   const token = videoToken(identity, room, config);
   sendTokenResponse(token, res, code);
 });

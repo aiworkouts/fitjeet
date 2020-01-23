@@ -38,11 +38,18 @@ const Room = ({ roomName, token, role, handleLogout }) => {
     };
   }, [roomName, token]);
 
-  const remoteParticipants = participants.map(participant => (
+  const hasInstructorRole = () => (role === 'instructor');
+  const isInstructor = p => p.identity.endsWith('-instructor');
+
+  const remoteParticipants = participants.filter((p) => !isInstructor(p)).map(participant => (
+    <Participant key={participant.sid} participant={participant} />
+  ));
+  const instructorParticipants = participants.filter(isInstructor).map(participant => (
     <Participant key={participant.sid} participant={participant} />
   ));
 
-  const isInstructor = () => role === 'instructor'
+
+
 
   return (
     <div className="vbox viewport outermost">
@@ -55,18 +62,8 @@ const Room = ({ roomName, token, role, handleLogout }) => {
         <aside>
           <div className="mainCamera">
             <div>
-              {room ? (
-                <div>
-                <div>role: {role}, id: {room.localParticipant.identity} </div>
-                <Participant
-                  key={room.localParticipant.sid}
-                  participant={room.localParticipant}
-                />
-                </div>
-              ) : (
-                  ''
-                )}
-            </div>
+            {hasInstructorRole() ? '' : (instructorParticipants.length > 0 ? instructorParticipants : 'Instructor will soon join')}
+            </div> 
             <div>
               {room ? (
                 <Participant
