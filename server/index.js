@@ -9,11 +9,27 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(pino);
 
-const sendTokenResponse = (token, res) => {
+const sendTokenResponse = (token, res, code) => {
+  let role = 'default';
+  if(code === 'secret2020')
+    role = 'instructor'
   res.set('Content-Type', 'application/json');
   res.send(
     JSON.stringify({
-      token: token.toJwt()
+      token: token.toJwt(),
+      role: role,
+    })
+  );
+};
+
+const sendClassNotFound = (res) => {
+  let role = 'default';
+  res.set('Content-Type', 'application/json');
+  res.send(
+    JSON.stringify({
+      token: '',
+      role: role,
+      error: 'Class room not found'
     })
   );
 };
@@ -24,18 +40,16 @@ app.get('/api/greeting', (req, res) => {
   res.send(JSON.stringify({ greeting: `Hello ${name}!` }));
 });
 
-app.get('/video/token', (req, res) => {
-  const identity = req.query.identity;
-  const room = req.query.room;
-  const token = videoToken(identity, room, config);
-  sendTokenResponse(token, res);
-
-});
 app.post('/video/token', (req, res) => {
   const identity = req.body.identity;
   const room = req.body.room;
+  const code = req.body.code;
+  if(room !== 'workout101') {
+    sendClassNotFound(res)
+    return
+  }
   const token = videoToken(identity, room, config);
-  sendTokenResponse(token, res);
+  sendTokenResponse(token, res, code);
 });
 
 app.listen(3001, () =>

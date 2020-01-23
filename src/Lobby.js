@@ -5,13 +5,16 @@ const Lobby = ({
   handleUsernameChange,
   roomName,
   handleRoomNameChange,
-  handleSubmit
+  codename,
+  handleCodenameChange,
+  handleSubmit,
+  error
 }) => {
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Enter a room</h2>
+      <h2>Enter workout class</h2>
       <div>
-        <label htmlFor="name">Name:</label>
+        <label htmlFor="name">Participant Name</label>
         <input
           type="text"
           id="field"
@@ -22,17 +25,34 @@ const Lobby = ({
       </div>
 
       <div>
-        <label htmlFor="room">Room name:</label>
+        <label htmlFor="room">Class name</label>
         <input
           type="text"
           id="room"
           value={roomName}
+          placeholder="workout101"
           onChange={handleRoomNameChange}
           required
         />
       </div>
 
+      <div>
+        <label htmlFor="code">Enter Code</label>
+        <input
+          type="text"
+          id="code"
+          placeholder="default"
+          value={codename}
+          onChange={handleCodenameChange}
+          required
+        />
+      </div>
+
       <button type="submit">Submit</button>
+      <p>
+        {error ? error : ''}
+      </p>
+      
     </form>
   );
 };

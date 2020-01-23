@@ -41,17 +41,18 @@ main {
   background: #ffffff;
   flex-grow: 1;
 }
-
+*/
 form {
   max-width: 300px;
   margin: 0 auto;
 }
-
+/*
 h2 {
   font-weight: 300;
   margin-bottom: 1em;
   text-align: center;
 }
+*/
 
 form > div {
   width: 100%;
@@ -81,7 +82,7 @@ button {
 button:hover {
   filter: brightness(150%);
 }
-
+/*
 .room {
   position: relative;
 }

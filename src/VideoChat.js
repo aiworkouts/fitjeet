@@ -4,8 +4,11 @@ import Room from './Room';
 
 const VideoChat = () => {
   const [username, setUsername] = useState('');
+  const [codename, setCodename] = useState('');
   const [roomName, setRoomName] = useState('');
   const [token, setToken] = useState(null);
+  const [role, setRole] = useState('default');
+  const [error, setError] = useState('');
 
   const handleUsernameChange = useCallback(event => {
     setUsername(event.target.value);
@@ -15,22 +18,33 @@ const VideoChat = () => {
     setRoomName(event.target.value);
   }, []);
 
+  const handleCodenameChange = useCallback(event => {
+    setCodename(event.target.value);
+  }, []);
+
   const handleSubmit = useCallback(
     async event => {
       event.preventDefault();
+      console.log(`code`, codename)
       const data = await fetch('/video/token', {
         method: 'POST',
         body: JSON.stringify({
           identity: username,
-          room: roomName
+          room: roomName,
+          code: codename,
         }),
         headers: {
           'Content-Type': 'application/json'
         }
       }).then(res => res.json());
       setToken(data.token);
+      setRole(data.role);
+      if(data.error !== undefined)
+        setError(data.error)
+      else
+        setError('')
     },
-    [roomName, username]
+    [roomName, username, codename]
   );
 
   const handleLogout = useCallback(event => {
@@ -40,17 +54,23 @@ const VideoChat = () => {
   let render;
   if (token) {
     render = (
-      <Room roomName={roomName} token={token} handleLogout={handleLogout} />
+      <Room roomName={roomName} token={token} role={role} handleLogout={handleLogout} />
     );
   } else {
     render = (
-      <Lobby
-        username={username}
-        roomName={roomName}
-        handleUsernameChange={handleUsernameChange}
-        handleRoomNameChange={handleRoomNameChange}
-        handleSubmit={handleSubmit}
-      />
+      <div>
+        <Lobby
+          username={username}
+          roomName={roomName}
+          codename={codename}
+          handleUsernameChange={handleUsernameChange}
+          handleRoomNameChange={handleRoomNameChange}
+          handleCodenameChange={handleCodenameChange}
+          handleSubmit={handleSubmit}
+          error={error}
+        />
+      </div>
+
     );
   }
   return render;

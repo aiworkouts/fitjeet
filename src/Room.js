@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Video from 'twilio-video';
 import Participant from './Participant';
 
-const Room = ({ roomName, token, handleLogout }) => {
+const Room = ({ roomName, token, role, handleLogout }) => {
   const [room, setRoom] = useState(null);
   const [participants, setParticipants] = useState([]);
 
@@ -42,6 +42,8 @@ const Room = ({ roomName, token, handleLogout }) => {
     <Participant key={participant.sid} participant={participant} />
   ));
 
+  const isInstructor = () => role === 'instructor'
+
   return (
     <div className="vbox viewport outermost">
       <header>Room: {roomName}</header>
@@ -54,10 +56,13 @@ const Room = ({ roomName, token, handleLogout }) => {
           <div className="mainCamera">
             <div>
               {room ? (
+                <div>
+                <div>role: {role}, id: {room.localParticipant.identity} </div>
                 <Participant
                   key={room.localParticipant.sid}
                   participant={room.localParticipant}
                 />
+                </div>
               ) : (
                   ''
                 )}
