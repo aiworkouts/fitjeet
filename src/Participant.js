@@ -9,12 +9,14 @@ const Participant = ({ participant }) => {
   const audioRef = useRef();
 
   useEffect(() => {
-    console.log(`Participant`, participant);
+    console.log(`[Participant]`, participant);
     setVideoTracks(Array.from(participant.videoTracks.values()));
     setAudioTracks(Array.from(participant.audioTracks.values()));
+    setDataTracks(Array.from(participant.dataTracks.values()));
 
     const trackSubscribed = track => {
-      console.log(`Participant "${participant.identity}" added ${track.kind} Track ${track.sid}`);
+      console.log(`Track ${track.sid} subscribed`)
+      console.log(`Track subscribed of type ${track.kind}: Track ${track.sid}`);
       if (track.kind === 'video') {
         setVideoTracks(videoTracks => [...videoTracks, track]);
       } else if (track.kind === 'audio') {
@@ -27,6 +29,8 @@ const Participant = ({ participant }) => {
     };
 
     const trackUnsubscribed = track => {
+      console.log(`Track ${track.sid} unsubscribed`)
+      console.log(`Track unsubscribed of type ${track.kind}: Track ${track.sid}`)
       if (track.kind === 'video') {
         setVideoTracks(videoTracks => videoTracks.filter(v => v !== track));
       } else if (track.kind === 'audio') {
@@ -40,6 +44,17 @@ const Participant = ({ participant }) => {
 
     participant.on('trackSubscribed', trackSubscribed);
     participant.on('trackUnsubscribed', trackUnsubscribed);
+    participant.on('trackPublished', track => {
+      console.log(`Track ${track.sid} published`)
+      if (track.isSubscribed) {
+        console.log(`Track ${track.sid} is already subscribed`);
+        // remoteTrackSubscribed(remoteParticipant, publication.track);
+      } else {
+        track.on('subscribed', trackSubscribed);
+      }
+      track.on('unsubscribed', trackUnsubscribed);
+    });
+    participant.on('trackUnpublished', trackUnsubscribed);
 
     return () => {
       setVideoTracks([]);
@@ -72,8 +87,10 @@ const Participant = ({ participant }) => {
   useEffect(() => {
     const dataTrack = dataTracks[0];
     if (dataTrack) {
+      console.log(`useEffect:`, dataTrack);
       dataTrack.on('message', data => {
-        console.log(`data`, data);
+        const { mouseDown, mouseCoordinates: { x, y } } = JSON.parse(data);
+        console.log(dataTrack.id, mouseDown, x, y);
       });
       return () => {
         dataTrack.removeAllListeners();

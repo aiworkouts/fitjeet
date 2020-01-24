@@ -57,6 +57,7 @@ const Room = ({ roomName, token, role, handleLogout }) => {
       }
       return tracks;
     }).then(tracks => {
+      console.log(`tracks:`, tracks)
       Video.connect(token, {
         name: roomName,
         tracks,
@@ -124,22 +125,6 @@ const Room = ({ roomName, token, role, handleLogout }) => {
         {/* <video width="350px" autoPlay muted loop src="assets/LowImpactCardio.mp4" /> */}
       </footer>
     </div>
-    // <div className="room">
-    //   <h2>Room: {roomName}</h2>
-    //   <button onClick={handleLogout}>Log out</button>
-    //   <div className="local-participant">
-    // {room ? (
-    //   <Participant
-    //     key={room.localParticipant.sid}
-    //     participant={room.localParticipant}
-    //   />
-    // ) : (
-    //   ''
-    // )}
-    //   </div>
-    //   <h3>Remote Participants</h3>
-    //   <div className="remote-participants">{remoteParticipants}</div>
-    // </div>
   );
 };
 
