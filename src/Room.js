@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Video from 'twilio-video';
 import { createLocalTracks, LocalDataTrack } from 'twilio-video';
+import { Player, ControlBar, PlayToggle, BigPlayButton} from 'video-react';
 import Participant from './Participant';
 
+import "video-react/dist/video-react.css";
 
 function setupLocalDataTrack() {
   const dataTrack = new LocalDataTrack();
@@ -51,7 +53,7 @@ const Room = ({ roomName, token, role, handleLogout }) => {
     };
 
     createLocalTracks().then(tracks => {
-      if(role === `instructor`) {
+      if (role === `instructor`) {
         let dataTrack = setupLocalDataTrack();
         return tracks.concat(dataTrack);
       }
@@ -100,7 +102,19 @@ const Room = ({ roomName, token, role, handleLogout }) => {
       <section className="main hbox space-between">
         <nav><button onClick={handleLogout}>Log out</button></nav>
         <article>
-          <div><video height="520px" autoPlay muted loop src="assets/LowImpactCardio.mp4" /></div>
+          {/* <div><video height="520px" autoPlay muted loop src="assets/LowImpactCardio.mp4" /></div> */}
+          <div><Player
+            playsInline
+            fluid={false}
+            height={520}
+            poster="/assets/poster.png"
+            src="assets/LowImpactCardio.mp4"
+          >
+            {/* <BigPlayButton disabled /> */}
+            <ControlBar autoHide={true} disableDefaultControls={true}>
+              <PlayToggle />
+            </ControlBar>
+          </Player></div>
         </article>
         <aside>
           <div className="mainCamera">
