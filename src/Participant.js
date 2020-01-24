@@ -3,28 +3,38 @@ import React, { useState, useEffect, useRef } from 'react';
 const Participant = ({ participant }) => {
   const [videoTracks, setVideoTracks] = useState([]);
   const [audioTracks, setAudioTracks] = useState([]);
+  const [dataTracks, setDataTracks] = useState([]);
 
   const videoRef = useRef();
   const audioRef = useRef();
 
   useEffect(() => {
-    console.log(participant);
+    console.log(`Participant`, participant);
     setVideoTracks(Array.from(participant.videoTracks.values()));
     setAudioTracks(Array.from(participant.audioTracks.values()));
 
     const trackSubscribed = track => {
+      console.log(`Participant "${participant.identity}" added ${track.kind} Track ${track.sid}`);
       if (track.kind === 'video') {
         setVideoTracks(videoTracks => [...videoTracks, track]);
-      } else {
+      } else if (track.kind === 'audio') {
         setAudioTracks(audioTracks => [...audioTracks, track]);
+      } else if (track.kind === 'data') {
+        setDataTracks(dataTracks => [...dataTracks, track]);
+      } else {
+        throw Error('Unknown track');
       }
     };
 
     const trackUnsubscribed = track => {
       if (track.kind === 'video') {
         setVideoTracks(videoTracks => videoTracks.filter(v => v !== track));
-      } else {
+      } else if (track.kind === 'audio') {
         setAudioTracks(audioTracks => audioTracks.filter(a => a !== track));
+      } else if (track.kind === 'data') {
+        setDataTracks(dataTracks => dataTracks.filter(a => a !== track));
+      } else {
+        throw Error('Unknown track');
       }
     };
 
@@ -34,6 +44,7 @@ const Participant = ({ participant }) => {
     return () => {
       setVideoTracks([]);
       setAudioTracks([]);
+      setDataTracks([]);
       participant.removeAllListeners();
     };
   }, [participant]);
@@ -57,6 +68,18 @@ const Participant = ({ participant }) => {
       };
     }
   }, [audioTracks]);
+
+  useEffect(() => {
+    const dataTrack = dataTracks[0];
+    if (dataTrack) {
+      dataTrack.on('message', data => {
+        console.log(`data`, data);
+      });
+      return () => {
+        dataTrack.removeAllListeners();
+      };
+    }
+  }, [dataTracks]);
 
   return (
     <div className="participant">

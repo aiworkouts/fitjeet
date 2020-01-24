@@ -1,38 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import Video  from 'twilio-video';
-import {LocalDataTrack}  from 'twilio-video';
+import Video from 'twilio-video';
+import { createLocalTracks, LocalDataTrack } from 'twilio-video';
 import Participant from './Participant';
+
+
+function setupLocalDataTrack() {
+  const dataTrack = new LocalDataTrack();
+
+  let mouseDown;
+  let mouseCoordinates;
+
+  window.addEventListener('mousedown', () => {
+    mouseDown = true;
+  }, false);
+
+  window.addEventListener('mouseup', () => {
+    mouseDown = false;
+  }, false);
+
+  window.addEventListener('mousemove', event => {
+    const { pageX: x, pageY: y } = event;
+    mouseCoordinates = { x, y };
+
+    if (mouseDown) {
+      dataTrack.send(JSON.stringify({
+        mouseDown,
+        mouseCoordinates
+      }));
+    }
+  }, false);
+
+  return dataTrack;
+}
 
 const Room = ({ roomName, token, role, handleLogout }) => {
   const [room, setRoom] = useState(null);
   const [participants, setParticipants] = useState([]);
 
   useEffect(() => {
-    console.log(`here...in room....`)
-    console.log(`role`, role)
-    console.log(`token`, token)
-    let dataTrack;
-    let options = {
-      name: roomName
-    }
-    const dataTrackPublished = {};
-
-    dataTrackPublished.promise = new Promise((resolve, reject) => {
-      dataTrackPublished.resolve = resolve;
-      dataTrackPublished.reject = reject;
-    });
-    function sendMessage(message) {
-      dataTrackPublished.promise.then(() => dataTrack.send(message));
-    }
-
-    if(role === 'instructor') {
-      dataTrack = new LocalDataTrack();
-      Object.assign(options, {tracks: [dataTrack]});
-    }
+    console.log(`Here in room: role=${role}, token=${token}`)
 
     const participantConnected = participant => {
       setParticipants(prevParticipants => [...prevParticipants, participant]);
-      subscribeToParticipantUpdates(participant)
     };
 
     const participantDisconnected = participant => {
@@ -41,35 +50,22 @@ const Room = ({ roomName, token, role, handleLogout }) => {
       );
     };
 
-    const subscribeToParticipantUpdates = participant => {
-      participant.on('trackSubscribed', track => {
-        console.log(`Participant "${participant.identity}" added ${track.kind} Track ${track.sid}`);
-        if (track.kind === 'data') {
-          track.on('message', data => {
-            console.log(`participantSubscribed`, data);
-          });
-        }
-      });
-    }
-    console.log(options, role);
-    Video.connect(token, options).then(room => {
-      setRoom(room);
-      if(role === 'instructor') {
-        room.localParticipant.on('trackPublished', publication => {
-          if (publication.track === dataTrack) {
-            dataTrackPublished.resolve();
-          }
-        });
-        
-        room.localParticipant.on('trackPublicationFailed', (error, track) => {
-          if (track === dataTrack) {
-            dataTrackPublished.reject(error);
-          }
-        });
+    createLocalTracks().then(tracks => {
+      if(role === `instructor`) {
+        let dataTrack = setupLocalDataTrack();
+        return tracks.concat(dataTrack);
       }
-      room.on('participantConnected', participantConnected);
-      room.on('participantDisconnected', participantDisconnected);
-      room.participants.forEach(participantConnected);
+      return tracks;
+    }).then(tracks => {
+      Video.connect(token, {
+        name: roomName,
+        tracks,
+      }).then(room => {
+        setRoom(room);
+        room.on('participantConnected', participantConnected);
+        room.on('participantDisconnected', participantDisconnected);
+        room.participants.forEach(participantConnected);
+      });
     });
 
     return () => {
@@ -108,8 +104,8 @@ const Room = ({ roomName, token, role, handleLogout }) => {
         <aside>
           <div className="mainCamera">
             <div>
-            {hasInstructorRole() ? '' : (instructorParticipants.length > 0 ? instructorParticipants : 'Instructor will soon join')}
-            </div> 
+              {hasInstructorRole() ? '' : (instructorParticipants.length > 0 ? instructorParticipants : 'Instructor will soon join')}
+            </div>
             <div>
               {room ? (
                 <Participant
@@ -124,7 +120,7 @@ const Room = ({ roomName, token, role, handleLogout }) => {
         </aside>
       </section>
       <footer>
-      {remoteParticipants}
+        {remoteParticipants}
         {/* <video width="350px" autoPlay muted loop src="assets/LowImpactCardio.mp4" /> */}
       </footer>
     </div>
