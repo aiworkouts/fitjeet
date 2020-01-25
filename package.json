@@ -19,7 +19,7 @@
     "server": "node-env-run server --exec nodemon | pino-colada",
     "download": "node src/prepare.js",
     "dev": "npm run download && run-p server start",
-    "prod": "npm run build && npm run download && npm run server"
+    "prod": "npm run download && npm run build && npm run server"
   },
   "proxy": "http://localhost:3001",
   "eslintConfig": {
