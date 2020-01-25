@@ -11,6 +11,7 @@
     "twilio-video": "^1.19.2",
     "video-react": "^0.14.1"
   },
+  "homepage": "https://fitjeet.onrender.com",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
