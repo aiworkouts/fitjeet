@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PubSub from 'pubsub-js'
 
 const Participant = ({ participant }) => {
   const [videoTracks, setVideoTracks] = useState([]);
@@ -89,8 +90,9 @@ const Participant = ({ participant }) => {
     if (dataTrack) {
       console.log(`useEffect:`, dataTrack);
       dataTrack.on('message', data => {
-        const { mouseDown, mouseCoordinates: { x, y } } = JSON.parse(data);
-        console.log(dataTrack.id, mouseDown, x, y);
+        const received = JSON.parse(data);
+        console.log(dataTrack.id, received);
+        PubSub.publish('video-updates', received);
       });
       return () => {
         dataTrack.removeAllListeners();

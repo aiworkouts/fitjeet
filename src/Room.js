@@ -3,6 +3,9 @@ import Video from 'twilio-video';
 import { createLocalTracks, LocalDataTrack } from 'twilio-video';
 import VideoPlayer from './VideoPlayer'
 
+
+
+
 import Participant from './Participant';
 
 
@@ -10,35 +13,38 @@ import Participant from './Participant';
 function setupLocalDataTrack() {
   const dataTrack = new LocalDataTrack();
 
-  let mouseDown;
-  let mouseCoordinates;
+  // let mouseDown;
+  // let mouseCoordinates;
 
-  window.addEventListener('mousedown', () => {
-    mouseDown = true;
-  }, false);
+  // window.addEventListener('mousedown', () => {
+  //   mouseDown = true;
+  // }, false);
 
-  window.addEventListener('mouseup', () => {
-    mouseDown = false;
-  }, false);
+  // window.addEventListener('mouseup', () => {
+  //   mouseDown = false;
+  // }, false);
 
-  window.addEventListener('mousemove', event => {
-    const { pageX: x, pageY: y } = event;
-    mouseCoordinates = { x, y };
+  // window.addEventListener('mousemove', event => {
+  //   const { pageX: x, pageY: y } = event;
+  //   mouseCoordinates = { x, y };
 
-    if (mouseDown) {
-      dataTrack.send(JSON.stringify({
-        mouseDown,
-        mouseCoordinates
-      }));
-    }
-  }, false);
+  //   if (mouseDown) {
+  //     dataTrack.send(JSON.stringify({
+  //       mouseDown,
+  //       mouseCoordinates
+  //     }));
+  //   }
+  // }, false);
 
   return dataTrack;
 }
 
 const Room = ({ roomName, token, role, handleLogout }) => {
+  const [dataTrack, setDataTrack] = useState(null);
   const [room, setRoom] = useState(null);
   const [participants, setParticipants] = useState([]);
+
+
 
   useEffect(() => {
     console.log(`Here in room: role=${role}, token=${token}`)
@@ -56,6 +62,7 @@ const Room = ({ roomName, token, role, handleLogout }) => {
     createLocalTracks().then(tracks => {
       if (role === `instructor`) {
         let dataTrack = setupLocalDataTrack();
+        setDataTrack(dataTrack);
         return tracks.concat(dataTrack);
       }
       return tracks;
@@ -104,8 +111,13 @@ const Room = ({ roomName, token, role, handleLogout }) => {
         <nav><button onClick={handleLogout}>Log out</button></nav>
         <article>
           {/* <div><video height="520px" autoPlay muted loop src="assets/LowImpactCardio.mp4" /></div> */}
-          <VideoPlayer />
-
+          {(() => {
+            if(role === 'instructor' && dataTrack) {
+              return <VideoPlayer dataTrack={dataTrack} />
+            } else if (role === 'default'){
+              return <VideoPlayer />
+            }
+          })()}
         </article>
         <aside>
           <div className="mainCamera">

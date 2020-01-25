@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { Player, ControlBar } from 'video-react';
 import "video-react/dist/video-react.css";
 
+import PubSub from 'pubsub-js'
+
 
 const sources = {
   localMovie: 'assets/LowImpactCardio.mp4',
@@ -15,9 +17,10 @@ const sources = {
 export default class VideoPlayer extends Component {
   constructor(props, context) {
     super(props, context);
-
+    console.log(`dataTrack`, props.dataTrack)
     this.state = {
-      source: sources.localMovie
+      source: sources.localMovie,
+      dataTrack: props.dataTrack
     };
 
     this.play = this.play.bind(this);
@@ -33,7 +36,36 @@ export default class VideoPlayer extends Component {
   componentDidMount() {
     // subscribe state change
     this.player.subscribeToStateChange(this.handleStateChange.bind(this));
+    if(!this.state.dataTrack) {
+      var localThis = this;
+      var mySubscriber = function (msg, data) {
+        console.log( `video-subscriber`, msg, data );
+        const remotePlayer = data.player;
+        const localPlayer = localThis.player.getState().player;
+        console.log(`remoteState: `, remotePlayer.paused, remotePlayer.currentTime)
+        console.log(`localState: `, localPlayer.paused, localPlayer.currentTime)
+        if(Math.abs(remotePlayer.currentTime - localPlayer.currentTime) > 4) {
+          console.log(`SEEKING to catchup with the remote player`)
+          localThis.player.seek(remotePlayer.currentTime);
+        }
+        if(remotePlayer.paused && !localPlayer.paused) {
+          console.log(`PAUSING because remote player is paused`)
+          localThis.pause()
+        }
+        if(!remotePlayer.paused && localPlayer.paused) {
+          console.log(`PLAYING because remote player is playing`)
+          localThis.play()
+        }
+      };
+      var token = PubSub.subscribe('video-updates', mySubscriber);
+      this.setState({token})
+    }
   }
+  componentWillUnmount() {
+    if(this.state.token)
+      PubSub.unsubscribe(this.state.token);
+  }
+
 
   setMuted(muted) {
     return () => {
@@ -43,9 +75,14 @@ export default class VideoPlayer extends Component {
 
   handleStateChange(state) {
     // copy player state to this component's state
-    this.setState({
+    const playerState = {
       player: state
-    });
+    };
+    this.setState(playerState);
+    if(this.state.dataTrack) {
+      this.state.dataTrack.send(JSON.stringify(playerState));
+    }
+
   }
 
   play() {
@@ -101,13 +138,13 @@ export default class VideoPlayer extends Component {
       <div>
         <Player
           playsInline
+          muted
           fluid={false}
           height={520}
           poster="/assets/poster.png"
           ref={player => {
             this.player = player;
           }}
-          autoPlay
         >
           <source src={this.state.source} />
           <ControlBar autoHide={false} />
