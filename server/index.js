@@ -9,6 +9,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(pino);
 
+app.use(`/`, express.static(`build`));
+
 const sendTokenResponse = (token, res, code) => {
   let role = 'default';
   if(code === 'secret2020')
