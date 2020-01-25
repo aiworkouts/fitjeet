@@ -5,6 +5,7 @@ const Participant = ({ participant }) => {
   const [videoTracks, setVideoTracks] = useState([]);
   const [audioTracks, setAudioTracks] = useState([]);
   const [dataTracks, setDataTracks] = useState([]);
+  const [muted, setMuted] = useState(true);
 
   const videoRef = useRef();
   const audioRef = useRef();
@@ -100,10 +101,15 @@ const Participant = ({ participant }) => {
     }
   }, [dataTracks]);
 
+  const handleToggleAudio = () => {
+    setMuted(muted => !muted);
+    console.log(`currentAudioSettings:`, muted);
+  }
   return (
     <div className="participant">
       <video height="200px" ref={videoRef} autoPlay={true} />
-      <audio ref={audioRef} autoPlay={true} muted={true} />
+      <audio ref={audioRef} autoPlay={true} muted={muted} />
+      <button onClick={handleToggleAudio}>{muted ? "Unmute" : "Mute"}</button>
       <p>{participant.identity}</p>
     </div>
   );
