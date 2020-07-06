@@ -13,7 +13,7 @@ app.use(`/`, express.static(`build`));
 
 const sendTokenResponse = (token, res, code) => {
   let role = 'default';
-  if(code === 'secret2020')
+  if(code === 'secret2020rona')
     role = 'instructor'
   res.set('Content-Type', 'application/json');
   res.send(
@@ -50,7 +50,7 @@ app.post('/video/token', (req, res) => {
     sendClassNotFound(res)
     return
   }
-  if(code === 'secret2020')
+  if(code === 'secret2020rona')
     identity += '-instructor'
   const token = videoToken(identity, room, config);
   sendTokenResponse(token, res, code);
